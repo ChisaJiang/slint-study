@@ -1,2 +1,62 @@
+import { VerticalBox, TextEdit, LineEdit, Button, ListView, HorizontalBox, CheckBox } from "std-widgets.slint";
+
+export struct TodoItem {
+    checked: bool,
+    title: string,
+}
+
 export component MainWindow inherits Window {
+    // 建议尺寸
+    preferred-height: 600px;
+    preferred-width:  400px;
+
+    // 待办列表数据。声明为 `in` 属性：由 Rust 端通过 set_todo_added() 写入，
+    in property <[TodoItem]> todo-buffs: [
+        { checked: false, title: "demo1"},
+        { checked:true, title: "demo2"},
+    ];
+
+    callback todo-added(string);
+    callback remove-done();
+    VerticalBox {
+        HorizontalLayout {
+            padding: 0px;
+            text-edit := LineEdit {
+                placeholder-text: "想做些什么 ^v^"; 
+                accepted(text) => {
+                    root.todo-added(self.text);
+                    self.text = "";
+                }
+            }
+            btn := Button {
+                text: "加入";
+                enabled: text-edit.text != "";
+
+                clicked => {
+                    root.todo-added(text-edit.text);
+                    text-edit.text = "";
+                }
+            }
+        }
+
+        list-view := ListView {
+            for todo in root.todo-buffs: HorizontalLayout {
+                padding: 5px;
+                CheckBox {
+                    text: todo.title;
+                    checked: todo.checked;
+                }
+            }
+        }
+        HorizontalBox {
+            padding: 0px;
+            alignment: end;     // 子元素在水平方向靠右对齐（主轴末端）
+            Button {
+                text: "清除已完成任务";
+                clicked => {
+                    root.remove-done();
+                }
+            }
+        }
+    }
 }
