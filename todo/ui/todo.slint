@@ -44,7 +44,7 @@ export component MainWindow inherits Window {
                 padding: 5px;
                 CheckBox {
                     text: todo.title;
-                    checked: todo.checked;
+                    checked <=> todo.checked;       // 当勾选复选框后结构体内checked也会改变
                 }
             }
         }
